@@ -114,7 +114,11 @@ type
   TRAWPrinter = class(TComponent)
   private
     fESCList      : array[0..ESC_MAX] of string;
+    {$if CompilerVersion > 18}
+    fPrnHandle    : THandle;
+    {$ELSE}
     fPrnHandle    : DWord;
+    {$ENDIF}
     fPrnName      : string;
     fPrnMode      : TRAWPrinterMode;
     fPrnStatus    : TRAWPrinterStatus;
@@ -411,7 +415,11 @@ begin
   if (fPrnStatus = rpsClosed) then
   begin
     if (fPrnName = '') then SetToDefaultPrinter;
-    if OpenPrinter(PChar(fPrnName), fPrnHandle, nil) then fPrnStatus := rpsOpened
+   {$if CompilerVersion > 18}
+    if OpenPrinter(PWideChar(fPrnName), fPrnHandle, nil) then fPrnStatus := rpsOpened
+    {$ELSE}
+     if OpenPrinter(PChar(fPrnName), fPrnHandle, nil) then fPrnStatus := rpsOpened
+    {$ENDIF}
       else raise ERAWPrinterError.Create(Format(errPrinterError, [fPrnName]));
   end;
 
